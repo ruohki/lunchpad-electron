@@ -1,0 +1,9 @@
+export const COLOR_BLURPLE = "#7289DA";
+export const COLOR_WHITE = "#ffffff";
+export const COLOR_GREYPLE = "#99AAB5";
+export const COLOR_GRAY = "#76787b";
+export const COLOR_DARK = "#42464C";
+export const COLOR_DARKER = "#2C2F33";
+export const COLOR_NOTBLACK = "#23272A";
+export const COLOR_ALMOSTBLACK = "#111111";
+export const COLOR_REDISH = "#EC4343";
