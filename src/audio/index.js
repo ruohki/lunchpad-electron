@@ -6,6 +6,8 @@ import _ from 'lodash';
 class AudioManager extends EventEmitter {
   constructor(...props) {
     super(props);
+    
+    this.removeAllListeners();
 
     this.defaultOutput = "default"
     this.AudioCollection = new Map();
@@ -15,6 +17,7 @@ class AudioManager extends EventEmitter {
         this.emit('onEndedPlayback');
       }
     })
+
   }
 
   loadFile(fileName, loop = false, context = false) {

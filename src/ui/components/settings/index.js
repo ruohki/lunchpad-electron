@@ -43,7 +43,7 @@ const ApplicationConfig = ({ layout, audioManager, onClose = () => true }) => {
       <Select value={usePushToTalk} onChange={(e) => setUsePushToTalk(e.target.value)}>
         <option value="disabled">Disabled</option>
         <option value="mouse">Mouse</option>
-        <option value="keyboard">Keyboard</option>
+        {/* <option value="keyboard">Keyboard</option> */}
       </Select>
       
       {usePushToTalk === "mouse" && <Select value={pushToTalk} onChange={(e) => setPushToTalk(e.target.value)}>

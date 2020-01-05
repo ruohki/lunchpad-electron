@@ -9,6 +9,8 @@ class Midi extends EventEmitter {
   constructor(inputDevice, outputDevice, props) {
     super(props);
 
+    this.removeAllListeners();
+
     this.output = new midi.output();
     this.input = new midi.input();
 
@@ -18,7 +20,11 @@ class Midi extends EventEmitter {
 
     if (inputDevice) {
       const { id, name } = inputDevice;
+      // DEV
+      _.range(this.input.getPortCount()).map(i => this.input.closePort(i))
+
       if (this.input.getPortName(id) === `${name} ${id}`) {
+
         this.input.openPort(id);
         this.openedInput = id;
       } else {
@@ -30,6 +36,8 @@ class Midi extends EventEmitter {
     
     if (outputDevice) {
       const { id, name } = outputDevice;
+      // DEV
+      _.range(this.output.getPortCount()).map(i => this.output.closePort(i))
 
       if (this.output.getPortName(id) === `${name} ${id}`) {
         this.output.openPort(id);
@@ -65,7 +73,7 @@ class Midi extends EventEmitter {
     console.log("Trying to change MIDI Input to", `${id}: ${name}`)
     if (this.openedInput != -1) {
       console.log("Closeing Input:", this.openedInput)
-      this.input.closePort(this.openedInput);
+      _.range(this.input.getPortCount()).map(i => this.input.closePort(i))
       this.openedInput = -1;
     }
 
@@ -80,7 +88,7 @@ class Midi extends EventEmitter {
     console.log("Trying to change MIDI Output to", `${id}: ${name}`)
     if (this.openedOutput != -1) {
       console.log("Closeing Output:", this.openedOutput)
-      this.output.closePort(this.openedOutput);
+      _.range(this.output.getPortCount()).map(i => this.output.closePort(i))
       this.openedOutput = -1;
     }
 
@@ -107,7 +115,7 @@ class Midi extends EventEmitter {
 
   sendMessage([ status, note, velocity ]) {
     if (this.openedOutput != -1) {
-      console.log("Sending: ", status, note, velocity, this.openedOutput)
+      //console.log("Sending: ", status, note, velocity, this.openedOutput)
       return this.output.sendMessage([ status, note, velocity ])
     }
   }

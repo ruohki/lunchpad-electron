@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useState, useEffect } from 'react';
 import _ from 'lodash'
 import { Cantor } from 'number-pairings';
 
@@ -28,52 +28,61 @@ const App = () => {
   const [ showSettings, setShowSettings ] = useState(false);
   const [ showButtonConfig, setShowButtonConfig ] = useState(false);
 
-  AudioManager.on('onStartedPlayback', () => {
-    console.log("Started")
-    if (usePushToTalk === "mouse") {
-      Robot.mouseToggle('down', pushToTalk)
+  useEffect(() => {
+    const onStartedPlayback = () => {
+      if (usePushToTalk === "mouse") {
+        Robot.mouseToggle('down', pushToTalk)
+      }
     }
-  })
-  
-  AudioManager.on('onEndedPlayback', () => {
-    console.log("Ended")
-    if (usePushToTalk === "mouse") {
-      Robot.mouseToggle('up', pushToTalk)
-    }
-  })
 
-  Midi.removeAllListeners();
-  Midi.on('message', ([status, note, velo]) => {
-    const id = Cantor().join(status, note)
-    const button = _.get(buttonConfig, id, false)
-    
-    if (button) {
-      let loop = button.type === BUTTON_TYPE_LOOP_SOUND;
-      if (velo != 0) {
-        console.log(button.type)
-        switch(button.type) {
-          case BUTTON_TYPE_SOUND:
-          case BUTTON_TYPE_LOOP_SOUND:
-            if (button.soundFile) {
-              AudioManager.loadFile(button.soundFile, loop, id).then(uuid => {
-                AudioManager.playAudio(uuid)
-              })
+    const onEndedPlayback = () => {
+      if (usePushToTalk === "mouse") {
+        Robot.mouseToggle('up', pushToTalk)
+      }
+    }
+
+    const onMidiMessage = ([status, note, velo]) => {
+      const id = Cantor().join(status, note)
+      const button = _.get(buttonConfig, id, false)
+      
+      if (button) {
+        let loop = button.type === BUTTON_TYPE_LOOP_SOUND;
+        if (velo != 0) {
+          console.log("Button type:", button.type)
+          switch(button.type) {
+            case BUTTON_TYPE_SOUND:
+            case BUTTON_TYPE_LOOP_SOUND:
+              if (button.soundFile) {
+                AudioManager.loadFile(button.soundFile, loop, id).then(uuid => {
+                  AudioManager.playAudio(uuid)
+                })
+              }
+              break;
+            case BUTTON_TYPE_STOP_SOUND:
+              AudioManager.stopAllAudio();
+              break;
             }
-            break;
-          case BUTTON_TYPE_STOP_SOUND:
-            AudioManager.stopAllAudio();
-            break;
+        } else {
+          switch(button.type) {
+            case BUTTON_TYPE_SOUND:
+            case BUTTON_TYPE_LOOP_SOUND:
+              if (loop) {
+                AudioManager.findByContext(id).then(uuid => AudioManager.stopAudio(uuid));
+              }
+              break;
           }
-      } else {
-        switch(button.type) {
-          case BUTTON_TYPE_SOUND:
-          case BUTTON_TYPE_LOOP_SOUND:
-            if (loop) {
-              AudioManager.findByContext(id).then(uuid => AudioManager.stopAudio(uuid));
-            }
-            break;
         }
       }
+    }
+
+    AudioManager.on('onStartedPlayback', onStartedPlayback)
+    AudioManager.on('onEndedPlayback', onEndedPlayback)
+    Midi.on('message', onMidiMessage)
+
+    return () => {
+      AudioManager.off('onStartedPlayback', onStartedPlayback)
+      AudioManager.off('onEndedPlayback', onEndedPlayback)
+      Midi.off('message', onMidiMessage)
     }
   })
 
@@ -85,6 +94,8 @@ const App = () => {
 
         onContextMenu={(id) => setShowButtonConfig(id)}
         onSettings={() => setShowSettings(true)}
+        onMouseDown={(e, status, note, velo) => Midi.emit('message', [status, note, velo])}
+        onMouseUp={(e, status, note, velo) => Midi.emit('message', [status, note, velo])}
       />}
       {showSettings && <ApplicationConfig
         layout={selectedLayout}
@@ -95,7 +106,6 @@ const App = () => {
         config={_.get(buttonConfig, showButtonConfig, { id: showButtonConfig })}
         availableColors={selectedLayout.colors}
         onConfirm={(c) => {
-          console.log(c)
           setButtonConfig(Object.assign({}, buttonConfig, { [showButtonConfig]: c}));
           setShowButtonConfig(false)
         }}

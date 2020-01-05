@@ -14,10 +14,7 @@ export const useSettings = (key) => {
   }, [value])
 
   const set = (value) => {
-    console.log("Setting Key", key, value)
-    
     settings.set(key, value)
-    console.log(settings.get(key))
   }
 
   return [value, set];

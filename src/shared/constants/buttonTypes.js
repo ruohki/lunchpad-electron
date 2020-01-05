@@ -7,18 +7,18 @@ export const BUTTON_TYPE_LAUNCH_COMMAND = "launch"
 export const BUTTON_TYPE_WEB_REQUEST = "request"
 
 export const BUTTON_TYPES = [{
-  label: "Sound",
+  label: "Play a soundfile",
   type: BUTTON_TYPE_SOUND
 }, {
-  label: "Looping Sound",
+  label: "Loop a soundfile",
   type: BUTTON_TYPE_LOOP_SOUND
 }, {
-  label: "Stop all Sounds",
+  label: "Stop all playing Sounds",
   type: BUTTON_TYPE_STOP_SOUND
-}, {
+}/* , {
   label: "Launch application",
   type: BUTTON_TYPE_LAUNCH_COMMAND
 }, {
   label: "Perform WebRequest",
   type: BUTTON_TYPE_WEB_REQUEST
-}]
+} */]

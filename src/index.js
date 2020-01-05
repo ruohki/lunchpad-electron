@@ -1,4 +1,6 @@
 import 'babel-polyfill';
+
+
 import { remote } from 'electron';
 
 import { Cantor } from 'number-pairings'
