@@ -1,6 +1,8 @@
 import { app, BrowserWindow, ipcMain, screen } from 'electron';
 import _ from 'lodash';
 
+import robotjs from 'robotjs';
+import midi from 'midi';
 import settings from 'electron-settings';
 
 import { checkOrCreateDefaultOptions } from './settings';
@@ -10,6 +12,10 @@ import { COLOR_DARKER } from '../shared/constants/uiColors';
 
 require('events').EventEmitter.defaultMaxListeners = 255;
 settings.setMaxListeners(255)
+
+global.settings = settings;
+global.midi = midi
+global.robotjs = robotjs
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require

@@ -1,6 +1,8 @@
 import { EventEmitter } from 'events';
-const midi = require('electron').remote.require('midi');
 import _ from 'lodash';
+import { getGlobal } from 'electron';
+
+const midi = getGlobal('midi');
 
 class Midi extends EventEmitter {
   constructor(inputDevice, outputDevice, props) {

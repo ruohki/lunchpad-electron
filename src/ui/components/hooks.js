@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { remote } from 'electron'
 
-const settings = remote.require('electron-settings');
+const settings = remote.getGlobal('settings');
 
 export const useSettings = (key) => {
   const [ value, setValue ] = useState(settings.get(key));

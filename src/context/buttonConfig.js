@@ -1,10 +1,10 @@
 import React from 'react';
 import _ from 'lodash';
-import { remote } from 'electron'
+import { getGlobal } from 'electron'
 
 import { CURRENT_BUTTON_CONFIGURATION } from '../shared/constants/settings';
 
-const settings = remote.require('electron-settings');
+const settings = getGlobal('settings');
 
 export const buttonConfigContext = React.createContext(settings.get(CURRENT_BUTTON_CONFIGURATION) || {});
 

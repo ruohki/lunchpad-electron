@@ -3,7 +3,7 @@ import { remote } from 'electron';
 
 import _ from 'lodash';
 
-const midi = remote.require('midi');
+const midi = remote.getGlobal('midi');
 
 class Midi extends EventEmitter {
   constructor(inputDevice, outputDevice, props) {

@@ -1,6 +1,5 @@
 import 'babel-polyfill';
 
-
 import { remote } from 'electron';
 
 import { Cantor } from 'number-pairings'
@@ -18,8 +17,8 @@ import audio from './audio';
 
 import { SELECTED_SOUND_OUTPUT_DEVICE, SELECTED_MIDI_INPUT_DEVICE, SELECTED_MIDI_OUTPUT_DEVICE, CURRENT_BUTTON_CONFIGURATION, AVAILABLE_LAYOUTS, CURRENT_PAGE } from './shared/constants/settings';
 
-const settings  = remote.require('electron-settings');
-const robot = remote.require('robotjs');
+const settings = remote.getGlobal('settings');
+const robot = remote.getGlobal('robotjs');
 
 // Constructing Global Context for Manager Classes
 const Midi = new midi();

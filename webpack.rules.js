@@ -1,4 +1,5 @@
 module.exports = [
+  
   // Add support for native node modules
   {
     test: /\.node$/,
@@ -16,7 +17,7 @@ module.exports = [
   },
   {
     test: /\.m?js$/,
-    exclude: /(node_modules|.webpack)/,
+    exclude: /(node_modules)/,
     use: {
       loader: 'babel-loader',
       options: {
@@ -29,7 +30,7 @@ module.exports = [
         ]
       }
     }
-  }
+  },
   // Put your webpack loader rules in this array.  This is where you would put
   // your ts-loader configuration for instance:
   /**
