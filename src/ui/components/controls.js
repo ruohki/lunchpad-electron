@@ -26,6 +26,24 @@ export const Input = styled.input`
   outline: none;
 `
 
+export const Textarea = styled.textarea`
+  padding: 8px 10px 6px 10px;
+  margin-bottom: 1rem;
+
+  width: 100%;
+  min-height: 32px;
+  height: 96px;
+  background-color: ${COLOR_NOTBLACK};
+  border: 2px solid ${COLOR_ALMOSTBLACK};
+  border-radius: 7px;
+  font-size: 1.6rem;
+  font-weight: normal;
+  font-style: normal;
+
+  color: ${COLOR_WHITE};
+  outline: none;
+`
+
 export const Button = styled.button.attrs(({ color }) => ({
   basecolor: color || COLOR_BLURPLE
 }))`
@@ -156,6 +174,6 @@ export const FileSelect = ({ selectedFile, onFileSelect = () => true}) => (
 )
 
 export const Hr = styled.hr`
- border: 1px solid ${COLOR_REDISH};
- margin-bottom: 1rem;
+  border: 1px solid ${COLOR_REDISH};
+  margin-bottom: 1rem;
 `

@@ -9,7 +9,7 @@ export const checkOrCreateDefaultOptions = () => {
 
   // Window Placement
   if (!settings.has(Constants.WINDOW_PLACEMENT)) {
-    settings.set(WINDOW_PLACEMENT, {
+    settings.set(Constants.WINDOW_PLACEMENT, {
       width: 972,
       height: 972,
       x: (workAreaSize.width / 2) - (972 / 2),
@@ -22,7 +22,7 @@ export const checkOrCreateDefaultOptions = () => {
   
   // Current Config
   if (!settings.has(Constants.SELECTED_LAYOUT)) {
-    settings.set(Constants.SELECTED_LAYOUT, Configs.default);
+    settings.set(Constants.SELECTED_LAYOUT, Configs.Default);
   }
 
   // Button configuration

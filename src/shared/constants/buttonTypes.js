@@ -15,10 +15,10 @@ export const BUTTON_TYPES = [{
 }, {
   label: "Stop all playing Sounds",
   type: BUTTON_TYPE_STOP_SOUND
-}/* , {
+},/*  {
   label: "Launch application",
   type: BUTTON_TYPE_LAUNCH_COMMAND
-}, {
+}, */ {
   label: "Perform WebRequest",
   type: BUTTON_TYPE_WEB_REQUEST
-} */]
+}]

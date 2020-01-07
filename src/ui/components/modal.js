@@ -60,7 +60,7 @@ const Backdrop = styled.div`
 
 const Content = styled.div`
   background-color: ${COLOR_ALMOSTBLACK};
-  overflow: hidden;
+  overflow-y: scroll;
   min-width: 50vw;
   min-height: 50vw;
   max-width: 90vw;
@@ -68,6 +68,24 @@ const Content = styled.div`
 
   border-radius: 8px;
   box-shadow: 0 0 25px black;
+
+  &::-webkit-scrollbar {
+    width: 1rem;
+    background-color: transparent;
+  }
+  &::-webkit-scrollbar-thumb:vertical {
+    background: rgba(255, 255, 255, 0.1);
+    background-clip: padding-box;
+    border-radius: 999rem;
+    border: 0.2rem solid transparent;
+    min-height: 1rem;
+  }
+  &::-webkit-scrollbar-thumb:vertical:active {
+    background: rgba(255, 255, 255, 0.2);
+    background-clip: padding-box;
+    border-radius: 999rem;
+    border: 0.2rem solid transparent;
+  }
 `
 
 export const Modal = ({ onClick, onClose, onCancel = () => true, title, hasCancel, children, ...props }) => {

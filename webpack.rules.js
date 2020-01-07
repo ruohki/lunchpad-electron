@@ -1,9 +1,10 @@
+const path = require('path')
 module.exports = [
   
   // Add support for native node modules
   {
     test: /\.node$/,
-    use: 'node-loader',
+    loader: "node-loader",
   },
   {
     test: /\.(m?js|node)$/,
@@ -16,8 +17,8 @@ module.exports = [
     },
   },
   {
-    test: /\.m?js$/,
-    exclude: /(node_modules)/,
+    test: /\.js$/,
+    exclude: /(node_modules|.webpack)/,
     use: {
       loader: 'babel-loader',
       options: {

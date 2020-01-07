@@ -4,6 +4,7 @@ import _ from 'lodash';
 import robotjs from 'robotjs';
 import midi from 'midi';
 import settings from 'electron-settings';
+import request from 'request';
 
 import { checkOrCreateDefaultOptions } from './settings';
 
@@ -16,13 +17,18 @@ settings.setMaxListeners(255)
 global.settings = settings;
 global.midi = midi
 global.robotjs = robotjs
+global.request = request
 
+console.log(robotjs.getPixelColor(0,0))
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
   app.quit();
 }
 
+// DEV
 if (module.hot) {
+  _.range(this.output.getPortCount()).map(i => this.output.closePort(i));
+  _.range(this.input.getPortCount()).map(i => this.input.closePort(i));
   module.hot.accept();
 }
 
@@ -101,3 +107,7 @@ app.on('activate', () => {
     createWindow();
   }
 });
+
+app.on('will-quit', () => {
+  // Clear Launchpad
+})
