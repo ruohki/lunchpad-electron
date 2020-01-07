@@ -18,17 +18,16 @@ import audio from './audio';
 import { SELECTED_SOUND_OUTPUT_DEVICE, SELECTED_MIDI_INPUT_DEVICE, SELECTED_MIDI_OUTPUT_DEVICE, CURRENT_BUTTON_CONFIGURATION, AVAILABLE_LAYOUTS, CURRENT_PAGE } from './shared/constants/settings';
 
 const settings = remote.getGlobal('settings');
-const robot = remote.getGlobal('robotjs');
+
+window.settings = settings;
 
 // Constructing Global Context for Manager Classes
 const Midi = new midi();
 const AudioManager = new audio();
-const Robot = robot;
 
 export const globalContext = React.createContext({
   Midi,
   AudioManager,
-  Robot
 });
 
 if (module.hot) {
@@ -55,15 +54,17 @@ const updateColors = (config) => {
   const layouts = settings.get(AVAILABLE_LAYOUTS);
   const usedLayout = _.find(layouts, ({ name }) => name === using);
   if (usedLayout.type === "midi") {
-
-    //console.log(keys)
-    Object.keys(keys).map((key) => {
-      const button = _.get(config, key, {})
-      const { id = key, color = 0 } = button;
-      const [ status, note ] = Cantor().split(id);
-      
-      Midi.sendMessage([status, note, color]);
-    })
+    // All color off
+    usedLayout.layout.rows.map(({ cols }) => cols.map(({ status, note }) => {
+      const id = Cantor().join(status, note);
+      const button = _.get(keys, id);
+      if (!_.isEmpty(button)) {
+        const { color = 0 } = button;
+        Midi.sendMessage([status, note, color]);
+      } else {
+        Midi.sendMessage([status, note, 0])
+      }
+    }));
   }
 }
 

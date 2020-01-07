@@ -68,12 +68,13 @@ class AudioManager extends EventEmitter {
     )
   }
 
-  playAudio(uuid) {
+  playAudio(uuid, volume = 1) {
     if (this.AudioCollection.size === 1) {
       this.emit('onStartedPlayback');
     }
     if (this.AudioCollection.has(uuid)) {
       const audio = this.AudioCollection.get(uuid);
+      audio.volume = volume;
       audio.play();
     }
   }
@@ -93,6 +94,7 @@ class AudioManager extends EventEmitter {
       audio.pause();
     });
     this.AudioCollection.clear();
+    this.emit('onEndedPlayback');
   }
 
   findByContext(context) {
