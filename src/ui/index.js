@@ -1,6 +1,7 @@
 import React, { useContext, useState, useEffect } from 'react';
 import _ from 'lodash'
 import { Cantor } from 'number-pairings';
+import { remote } from 'electron';
 
 import Controller from './components/controller';
 import ButtonConfig from './components/buttonConfig';
@@ -15,6 +16,9 @@ import { SELECTED_LAYOUT, CURRENT_BUTTON_CONFIGURATION, USE_PUSH_TO_TALK, PUSH_T
 import { COLOR_DARKER, COLOR_WHITE } from '../shared/constants/uiColors';
 import { BUTTON_TYPE_SOUND, BUTTON_TYPE_STOP_SOUND, BUTTON_TYPE_LAUNCH_COMMAND, BUTTON_TYPE_WEB_REQUEST, BUTTON_TYPE_LOOP_SOUND } from '../shared/constants/buttonTypes';
 
+const request = remote.getGlobal('request');
+const Robot = remote.getGlobal('robotjs');
+
 const App = () => {
   const [ selectedLayout ] = useSettings(SELECTED_LAYOUT);
   const [ buttonConfig, setButtonConfig ] = useSettings(CURRENT_BUTTON_CONFIGURATION);
@@ -22,7 +26,7 @@ const App = () => {
   const [ usePushToTalk ] = useSettings(USE_PUSH_TO_TALK);
   const [ pushToTalk ] = useSettings(PUSH_TO_TALK);
 
-  const { Midi, AudioManager, Robot } = useContext(globalContext);
+  const { Midi, AudioManager } = useContext(globalContext);
   
   // Modals
   const [ showSettings, setShowSettings ] = useState(false);
@@ -42,6 +46,7 @@ const App = () => {
     }
 
     const onMidiMessage = ([status, note, velo]) => {
+      console.log(status, note, velo)
       const id = Cantor().join(status, note)
       const button = _.get(buttonConfig, id, false)
       
@@ -54,12 +59,23 @@ const App = () => {
             case BUTTON_TYPE_LOOP_SOUND:
               if (button.soundFile) {
                 AudioManager.loadFile(button.soundFile, loop, id).then(uuid => {
-                  AudioManager.playAudio(uuid)
+                  AudioManager.playAudio(uuid, _.get(button, 'volume', 1))
                 })
               }
               break;
             case BUTTON_TYPE_STOP_SOUND:
               AudioManager.stopAllAudio();
+              break;
+            case BUTTON_TYPE_WEB_REQUEST:
+              const { url, method, body, header } = button;
+              request({
+                url,
+                method,
+                headers: JSON.parse(header),
+                body,
+              }, (err, res, body) => {
+                if (err) { return console.log(err); }
+              });
               break;
             }
         } else {
@@ -96,6 +112,69 @@ const App = () => {
         onSettings={() => setShowSettings(true)}
         onMouseDown={(e, status, note, velo) => Midi.emit('message', [status, note, velo])}
         onMouseUp={(e, status, note, velo) => Midi.emit('message', [status, note, velo])}
+        onMiddleMouse={(e, id) => {
+          if (_.get(buttonConfig, id, undefined)) {
+            setButtonConfig(_.omit(buttonConfig, id));
+          }
+        }}
+        onDropFile={(id, { name, path}) => {
+          let button = {
+            type: BUTTON_TYPE_SOUND,
+            caption: name,
+            soundFile: path,
+            color: Math.floor(Math.random()*selectedLayout.colors.length)
+          }
+          setButtonConfig(Object.assign({}, buttonConfig, { [id]: button}));
+        }}
+
+        onSwapButtons={(oldId, newId) => {
+          let oldButton = _.get(buttonConfig, oldId, undefined);
+          let newButton = _.get(buttonConfig, newId, undefined);
+          
+          let changes = {}
+
+          if (!_.isEmpty(newButton) && !_.isEmpty(oldButton)) {
+            // Swap
+            console.log("Swaping")
+            oldButton.id = newId;
+            newButton.id = oldId;
+
+            setButtonConfig(
+              Object.assign(
+                {},
+                _.omit(buttonConfig, [oldId, newId]),
+                {
+                  [newId]: oldButton,
+                  [oldId]: newButton
+                },
+              )
+            )
+          } else if (_.isEmpty(newButton) && !_.isEmpty(oldButton)) {
+            // Target is Empty
+            oldButton.id = newId;
+            setButtonConfig(
+              Object.assign(
+                {},
+                _.omit(buttonConfig, oldId),
+                {
+                  [newId]: oldButton,
+                },
+              )
+            )
+          } else {
+            // Source is Empty
+            newButton.id = oldId;
+            setButtonConfig(
+              Object.assign(
+                {},
+                _.omit(buttonConfig, newId),
+                {
+                  [oldId]: newButton,
+                },
+              )
+            )
+          }
+        }}
       />}
       {showSettings && <ApplicationConfig
         layout={selectedLayout}
