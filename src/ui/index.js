@@ -10,19 +10,21 @@ import ApplicationConfig from './components/settings';
 import { Main } from './components/layout';
 import { globalContext } from '../index'
 
-import { useSettings } from './components/hooks';
+import { useSettings, useButtonConfig } from './components/hooks';
 
 import { SELECTED_LAYOUT, CURRENT_BUTTON_CONFIGURATION, USE_PUSH_TO_TALK, PUSH_TO_TALK } from '../shared/constants/settings';
 import { COLOR_DARKER, COLOR_WHITE } from '../shared/constants/uiColors';
-import { BUTTON_TYPE_SOUND, BUTTON_TYPE_STOP_SOUND, BUTTON_TYPE_LAUNCH_COMMAND, BUTTON_TYPE_WEB_REQUEST, BUTTON_TYPE_LOOP_SOUND } from '../shared/constants/buttonTypes';
+import { BUTTON_TYPE_SOUND, BUTTON_TYPE_STOP_SOUND, BUTTON_TYPE_LAUNCH_COMMAND, BUTTON_TYPE_WEB_REQUEST, BUTTON_TYPE_LOOP_SOUND, BUTTON_TYPE_PAGE } from '../shared/constants/buttonTypes';
 
 const request = remote.getGlobal('request');
 const Robot = remote.getGlobal('robotjs');
 
 const App = () => {
   const [ selectedLayout ] = useSettings(SELECTED_LAYOUT);
-  const [ buttonConfig, setButtonConfig ] = useSettings(CURRENT_BUTTON_CONFIGURATION);
+  //const [ buttonConfig, setButton, changePage ] = useSettings(CURRENT_BUTTON_CONFIGURATION);
   
+  const [ buttonConfig, setButton, changePage ] = useButtonConfig();
+
   const [ usePushToTalk ] = useSettings(USE_PUSH_TO_TALK);
   const [ pushToTalk ] = useSettings(PUSH_TO_TALK);
 
@@ -77,6 +79,9 @@ const App = () => {
                 if (err) { return console.log(err); }
               });
               break;
+            case BUTTON_TYPE_PAGE:
+              changePage(button.pageIdentifier)
+              break;
             }
         } else {
           switch(button.type) {
@@ -114,7 +119,7 @@ const App = () => {
         onMouseUp={(e, status, note, velo) => Midi.emit('message', [status, note, velo])}
         onMiddleMouse={(e, id) => {
           if (_.get(buttonConfig, id, undefined)) {
-            setButtonConfig(_.omit(buttonConfig, id));
+            setButton(id, undefined);
           }
         }}
         onDropFile={(id, { name, path}) => {
@@ -122,57 +127,26 @@ const App = () => {
             type: BUTTON_TYPE_SOUND,
             caption: name,
             soundFile: path,
-            color: Math.floor(Math.random()*selectedLayout.colors.length)
+            volume: 1,
+            color: Math.floor(Math.random() * selectedLayout.colors.length)
           }
-          setButtonConfig(Object.assign({}, buttonConfig, { [id]: button}));
+          setButton(id, button)
         }}
 
         onSwapButtons={(oldId, newId) => {
           let oldButton = _.get(buttonConfig, oldId, undefined);
           let newButton = _.get(buttonConfig, newId, undefined);
-          
-          let changes = {}
 
           if (!_.isEmpty(newButton) && !_.isEmpty(oldButton)) {
             // Swap
-            console.log("Swaping")
-            oldButton.id = newId;
-            newButton.id = oldId;
+            setButton([[oldId, newButton], [newId, oldButton]])
 
-            setButtonConfig(
-              Object.assign(
-                {},
-                _.omit(buttonConfig, [oldId, newId]),
-                {
-                  [newId]: oldButton,
-                  [oldId]: newButton
-                },
-              )
-            )
           } else if (_.isEmpty(newButton) && !_.isEmpty(oldButton)) {
             // Target is Empty
-            oldButton.id = newId;
-            setButtonConfig(
-              Object.assign(
-                {},
-                _.omit(buttonConfig, oldId),
-                {
-                  [newId]: oldButton,
-                },
-              )
-            )
+            setButton([[newId, oldButton], [oldId, undefined]])
           } else {
             // Source is Empty
-            newButton.id = oldId;
-            setButtonConfig(
-              Object.assign(
-                {},
-                _.omit(buttonConfig, newId),
-                {
-                  [oldId]: newButton,
-                },
-              )
-            )
+            setButton([[oldId, newButton], [newId, undefined]])
           }
         }}
       />}
@@ -185,7 +159,8 @@ const App = () => {
         config={_.get(buttonConfig, showButtonConfig, { id: showButtonConfig })}
         availableColors={selectedLayout.colors}
         onConfirm={(c) => {
-          setButtonConfig(Object.assign({}, buttonConfig, { [showButtonConfig]: c}));
+          console.log(showButtonConfig, c)
+          setButton(showButtonConfig, c)
           setShowButtonConfig(false)
         }}
         onCancel={() => setShowButtonConfig(false)}
@@ -195,30 +170,3 @@ const App = () => {
 }
 
 export default App
-
-
-
-
-
-
-
-  /* useEffect(() => {
-    const callback = (event, { status, note, velocity }) => {
-      let id = Cantor().join(status, note);
-      
-      if (velocity != 0) {
-        // Pressed
-        //dispatch({ type: SET_BUTTON_STATE, payload: { id, color, pressed: velocity != 0 }})
-
-      } else {
-        // Released
-        //dispatch({ type: SET_BUTTON_STATE, payload: { id, pressed: velocity != 0 }})
-        //ipcRenderer.send(SEND_DEVICE_MESSAGE, { status, note, velocity: 0})
-      }
-    }
-    
-    ipcRenderer.on(RECEIVE_DEVICE_MESSAGE, callback)
-    return () => {
-      ipcRenderer.removeListener(RECEIVE_DEVICE_MESSAGE, callback)
-    }
-  }) */

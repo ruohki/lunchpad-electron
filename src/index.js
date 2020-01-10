@@ -15,7 +15,7 @@ import App from './ui';
 import midi from './midi'
 import audio from './audio';
 
-import { SELECTED_SOUND_OUTPUT_DEVICE, SELECTED_MIDI_INPUT_DEVICE, SELECTED_MIDI_OUTPUT_DEVICE, CURRENT_BUTTON_CONFIGURATION, AVAILABLE_LAYOUTS, CURRENT_PAGE } from './shared/constants/settings';
+import { SELECTED_SOUND_OUTPUT_DEVICE, SELECTED_MIDI_INPUT_DEVICE, SELECTED_MIDI_OUTPUT_DEVICE, CURRENT_BUTTON_CONFIGURATION, AVAILABLE_LAYOUTS, CURRENT_PAGE, SELECTED_LAYOUT } from './shared/constants/settings';
 
 const settings = remote.getGlobal('settings');
 
@@ -48,13 +48,14 @@ if(settings.has(SELECTED_SOUND_OUTPUT_DEVICE)) {
 }
 
 // Subscribe for button config so the colors will update
-const updateColors = (config) => {
+const updateColors = () => {
+  const page = _.get(settings.get(CURRENT_BUTTON_CONFIGURATION), settings.get(CURRENT_PAGE), "default")
   // Color Subscriber
-  const { using, ...keys } = config;
-  const layouts = settings.get(AVAILABLE_LAYOUTS);
-  const usedLayout = _.find(layouts, ({ name }) => name === using);
+  const { using, ...keys } = page;
+  const usedLayout = settings.get(SELECTED_LAYOUT);
   if (usedLayout.type === "midi") {
     // All color off
+    
     usedLayout.layout.rows.map(({ cols }) => cols.map(({ status, note }) => {
       const id = Cantor().join(status, note);
       const button = _.get(keys, id);
@@ -93,6 +94,9 @@ if (settings.has(SELECTED_MIDI_OUTPUT_DEVICE)) {
 }
 
 settings.watch(CURRENT_BUTTON_CONFIGURATION, updateColors);
+settings.watch(CURRENT_PAGE, updateColors);
+
+updateColors();
 
 // Construct top level component
 const StyledApp = () => (

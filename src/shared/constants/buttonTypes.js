@@ -6,6 +6,8 @@ export const BUTTON_TYPE_LAUNCH_COMMAND = "launch"
 
 export const BUTTON_TYPE_WEB_REQUEST = "request"
 
+export const BUTTON_TYPE_PAGE = "page"
+
 export const BUTTON_TYPES = [{
   label: "Play a soundfile",
   type: BUTTON_TYPE_SOUND
@@ -15,6 +17,9 @@ export const BUTTON_TYPES = [{
 }, {
   label: "Stop all playing Sounds",
   type: BUTTON_TYPE_STOP_SOUND
+}, {
+  label: "Select Button Page",
+  type: BUTTON_TYPE_PAGE
 },/*  {
   label: "Launch application",
   type: BUTTON_TYPE_LAUNCH_COMMAND

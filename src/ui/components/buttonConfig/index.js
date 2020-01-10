@@ -8,18 +8,24 @@ import ColorPicker from '../general/colorpicker';
 import Select from '../general/select';
 import Slider from '../slider';
 
-import { BUTTON_TYPES, BUTTON_TYPE_SOUND, BUTTON_TYPE_LOOP_SOUND, BUTTON_TYPE_WEB_REQUEST } from '../../../shared/constants/buttonTypes'
+import { BUTTON_TYPES, BUTTON_TYPE_SOUND, BUTTON_TYPE_LOOP_SOUND, BUTTON_TYPE_WEB_REQUEST, BUTTON_TYPE_PAGE } from '../../../shared/constants/buttonTypes'
 import { COLOR_REDISH } from '../../../shared/constants/uiColors';
 import { Split, Child } from '../layout';
+import { useSettings } from '../hooks';
+import { SELECTED_LAYOUT } from '../../../shared/constants/settings';
 
 const ButtonConfig = ({ config, availableColors = [], onConfirm = () => true, onCancel = () => true }) => {
+  const [ layout ] = useSettings(SELECTED_LAYOUT);
+
   const [ caption, setCaption ] = useState(_.get(config, 'caption', ''))
-  const [ color, setColor ] = useState(_.get(config, 'color', 0))
+  const [ color, setColor ] = useState(_.get(config, 'color', Math.floor(Math.random()*layout.colors.length)))
   const [ type, setType ] = useState(_.get(config, 'type', 'sound'))
   
   const [ volume, setVolume ] = useState(_.get(config, 'volume', 0.9));
   const [ soundFile, setSoundFile ] = useState(_.get(config, 'soundFile', undefined))
 
+  const [ pageIdentifier, setPageIdentifier ] = useState(_.get(config, 'pageIdentifier', 'default'))
+  
   const [ url, setUrl ] = useState(_.get(config, 'url', ''))
   
   const [ method, setMethod ] = useState(_.get(config, 'method', 'GET'))
@@ -32,7 +38,7 @@ const ButtonConfig = ({ config, availableColors = [], onConfirm = () => true, on
   return (
     <Modal
       title="Button Configuration..."
-      onClose={() => onConfirm(_.omit({ caption, color, type, soundFile, volume, url, method, header, body }))}
+      onClose={() => onConfirm(_.omit({ caption, color, type, soundFile, volume, pageIdentifier, url, method, header, body }))}
       hasCancel="Cancel"
       onCancel={onCancel}
     >
@@ -64,6 +70,14 @@ const ButtonConfig = ({ config, availableColors = [], onConfirm = () => true, on
         />
         <p>Volume: ({Math.floor(volume * 100)}%)</p>
         <Slider step={0.01} min={0} max={1} value={0.9} value={volume} onChange={(e) => setVolume(e.target.value)} />
+      </Fragment>}
+      {_.includes([BUTTON_TYPE_PAGE], type) && <Fragment>
+        <p>Page Identifier (PAGE1, PAGE2, SOUNDS3...):</p>
+        <Input 
+          placeholder="The identifier of the page to show"
+          value={pageIdentifier}
+          onChange={(e) => setPageIdentifier(_.isEmpty(e.target.value) ? "default" : e.target.value)}
+        />
       </Fragment>}
       {_.includes([BUTTON_TYPE_WEB_REQUEST], type) && <Fragment>
         <p>URL:</p>
