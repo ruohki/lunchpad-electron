@@ -42,7 +42,6 @@ class AudioManager extends EventEmitter {
   }
 
   setSinkId(sinkId) {
-    console.log("Setting Sink", sinkId)
     this.defaultOutput = sinkId;
   }
 

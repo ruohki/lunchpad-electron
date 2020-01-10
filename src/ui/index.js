@@ -159,7 +159,6 @@ const App = () => {
         config={_.get(buttonConfig, showButtonConfig, { id: showButtonConfig })}
         availableColors={selectedLayout.colors}
         onConfirm={(c) => {
-          console.log(showButtonConfig, c)
           setButton(showButtonConfig, c)
           setShowButtonConfig(false)
         }}
