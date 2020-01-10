@@ -4,7 +4,11 @@ module.exports = [
   // Add support for native node modules
   {
     test: /\.node$/,
-    loader: "node-loader",
+    loader: 'awesome-node-loader',
+    options: {
+      rewritePath: path.resolve(__dirname, '.webpack/main/native_modules/build/release'),
+      useDirname: false
+    }
   },
   {
     test: /\.(m?js|node)$/,
